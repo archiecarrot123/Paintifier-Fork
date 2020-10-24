@@ -13,27 +13,19 @@ fi
 
 if [ $1 == '-h' -o $1 == '--help' ]
   then
-    echo usage: HDConvert-interactive.sh [ input filename ] [ output foldername ]
+    echo usage: HDConvert-interactive.sh
     echo options: -h \| --help
     exit
 fi
 
-if [ -n $1 ]
-  then
-    filename=$1
-    if [ -n $2 ]
-      then
-        name=$2
-      else
-        name=VideoWorld
-    fi
-  else
-    filename=input-original.*
-    name=VideoWorld
-fi
-
 echo "To skip correct scale, type 1 and hit enter, otherwise just hit enter: "
 read skip
+
+echo "What is the name of your file?"
+read filename
+
+echo "What should the folder be called?"
+read name
 
 ffmpeg -loglevel error -stats -i "$filename" -vf "trim=0:4,geq=0:128:128" -af "atrim=0:4,volume=0" -video_track_timescale 600 -c:v libx264 -f mp4 sec.mp4
 ffmpeg -loglevel error -stats -i "$filename" -c:v libx264 -video_track_timescale 600 -f mp4 full600.mp4

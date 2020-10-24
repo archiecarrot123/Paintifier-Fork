@@ -11,32 +11,48 @@ then
     exit
 fi
 
+
 if [ $1 == '-h' -o $1 == '--help' ]
   then
     echo usage: HDConvert-interactive.sh [ input filename ] [ output foldername ]
-    echo options: -h \| --help
+    echo options:   -h \| --help
+    echo            -s \| --skip
     exit
 fi
-
-if [ -n $1 ]
+if [ $1 == '-s' -o $1 == '--skip' ]
   then
-    filename=$1
+    skip=1
     if [ -n $2 ]
       then
-        name=$2
+        filename=$2
+        if [ -n $3 ]
+          then
+            name=$3
+          else
+            name=VideoWorld
+        fi
       else
+        filename=input-original.*
         name=VideoWorld
     fi
   else
-    filename=input-original.*
-    name=VideoWorld
+    if [ -n $1 ]
+      then
+        filename=$1
+        if [ -n $2 ]
+          then
+            name=$2
+          else
+            name=VideoWorld
+        fi
+      else
+        filename=input-original.*
+        name=VideoWorld
+    fi
 fi
 
-echo "To skip correct scale, type 1 and hit enter, otherwise just hit enter: "
-read skip
-
-ffmpeg -loglevel error -stats -i "$filename" -vf "trim=0:4,geq=0:128:128" -af "atrim=0:4,volume=0" -video_track_timescale 600 -c:v libx264 -f mp4 sec.mp4
-ffmpeg -loglevel error -stats -i "$filename" -c:v libx264 -video_track_timescale 600 -f mp4 full600.mp4
+ffmpeg -loglevel error -stats -i input-original.* -vf "trim=0:4,geq=0:128:128" -af "atrim=0:4,volume=0" -video_track_timescale 600 -c:v libx264 -f mp4 sec.mp4
+ffmpeg -loglevel error -stats -i input-original.* -c:v libx264 -video_track_timescale 600 -f mp4 full600.mp4
 # Creates a text file required for concatenation.
 printf "file '%s'\n" sec.mp4 full600.mp4 > list.txt
 ffmpeg -loglevel error -stats -f concat -i list.txt -c copy -f mp4 merged.mp4
@@ -57,6 +73,10 @@ else
   rm input-moddeda.mp4
 fi
 
+ffmpeg -loglevel error -stats -i merged.mp4 -vf "scale=iw*min(1024/iw\,512/ih):ih*min(1024/iw\,512/ih),pad=1024:512:(1024-iw)/2:(512-ih)/2" input-moddeda.mp4
+ffmpeg -loglevel error -stats -i input-moddeda.mp4 -s 1024x512 -c:a copy input-modded.mp4
+rm input-moddeda.mp4
+
 rm merged.mp4
 
 mkdir out
@@ -65,9 +85,9 @@ mkdir out/assets/minecraft
 mkdir out/assets/minecraft/sounds
 mkdir out/assets/minecraft/sounds/audio
 
-ffmpeg -loglevel error -stats -i "$filename" -q:a 0 -map a out/assets/minecraft/sounds/audio/audio.ogg
+ffmpeg -loglevel error -stats -i input-original.* -q:a 0 -map a out/assets/minecraft/sounds/audio/audio.ogg
 
-rate=`ffprobe -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate "$filename"`
+rate="`ffprobe -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate input-original.*`"
 O="20/($rate)"
 echo $O
 
