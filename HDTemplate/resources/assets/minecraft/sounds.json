@@ -1,0 +1,10 @@
+{
+  "audio": {
+    "sounds": [
+	{
+        "name": "minecraft:audio/audio",
+		"stream": true
+		}
+    ]
+  }
+}

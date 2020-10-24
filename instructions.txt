@@ -1,0 +1,38 @@
+Ver 1.0
+
+Thank you for downloading my tool -thecolonel63
+
+Bash script by Archie Halliwell
+
+Notes:
+
+This tool is extremely experimental! Use at your own risk (Expect some features to not work)
+
+This tool works on Linux (it should also work on WSL)
+
+It requires Zip, FFmpeg, bash, and GNU core utils
+
+Tested on ubuntu 20.04 with ffmpeg version 4.2.4-1ubuntu0.1 and Zip 3.0 (July 5th 2008), by Info-ZIP.
+
+Instructions:
+
+1) Put your video "input-original.mp4" in the main directory
+
+2) Run "HDConvert.sh"
+
+3) If you are keeping the original aspect ratio (if it is 480p resolution or lower), 
+just hit enter, otherwise, type 1 and hit enter to skip the aspect ratio conversion.
+
+4) Wait until it says "Done!"
+
+5) Copy "out/VideoWorld" into your saves directory and load it up!
+
+Credits:
+
+PhoenixSC - Demonstrating on YouTube
+
+thecolonel63 - Creation of Automatic Script
+
+RTTV - Movie Theater build and Popcorn (Cookie)
+
+Archie Halliwell (ME) - Conversion to bash
