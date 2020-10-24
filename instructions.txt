@@ -16,7 +16,7 @@ Tested on ubuntu 20.04 with ffmpeg version 4.2.4-1ubuntu0.1 and Zip 3.0 (July 5t
 
 Instructions:
 
-1) Put your video "input-original.mp4" in the main directory
+1) Put your video "input-original.*" in the main directory
 
 2) Run "HDConvert.sh"
 
