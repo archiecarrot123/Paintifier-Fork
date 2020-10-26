@@ -14,7 +14,7 @@ then
     exit
 fi
 
-if [ $1 == '-h' -o $1 == '--help' ]
+if [ "$1" == '-h' -o "$1" == '--help' ]
   then
     echo usage: HDConvert-interactive.sh [ input filename ] [ output foldername ]
     echo options: -h \| --help
@@ -37,6 +37,13 @@ fi
 
 echo "To skip scale correction, type 1 and hit enter, otherwise just hit enter: "
 read skip
+
+if [ ! -a "$filename" ]
+  then
+    echo "Your specified file doesn't exist"
+    exit
+fi
+    
 
 ffmpeg -loglevel error -stats -i "$filename" -vf "trim=0:4,geq=0:128:128" -af "atrim=0:4,volume=0" -video_track_timescale 600 -c:v libx264 -f mp4 "$tmpdir/sec.mp4"
 ffmpeg -loglevel error -stats -i "$filename" -c:v libx264 -video_track_timescale 600 -f mp4 "$tmpdir/full600.mp4"

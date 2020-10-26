@@ -15,14 +15,14 @@ then
 fi
 
 
-if [ $1 == '-h' -o $1 == '--help' ]
+if [ "$1" == '-h' -o "$1" == '--help' ]
   then
     echo usage: HDConvert-interactive.sh [ input filename ] [ output foldername ]
     echo options:   -h \| --help
     echo            -s \| --skip
     exit
 fi
-if [ $1 == '-s' -o $1 == '--skip' ]
+if [ "$1" == '-s' -o "$1" == '--skip' ]
   then
     skip=1
     if [ -n "$2" ]
@@ -44,7 +44,7 @@ if [ $1 == '-s' -o $1 == '--skip' ]
         filename="$1"
          if [ -n "$2" ]
            then
-            name=$2
+            name="$2"
           else
             name=VideoWorld
         fi
@@ -52,6 +52,12 @@ if [ $1 == '-s' -o $1 == '--skip' ]
         filename=(input-original.*)
         name=VideoWorld
     fi
+fi
+
+if [ ! -a "$filename" ]
+  then
+    echo "Your specified file doesn't exist"
+    exit
 fi
 
 ffmpeg -loglevel error -stats -i "$filename" -vf "trim=0:4,geq=0:128:128" -af "atrim=0:4,volume=0" -video_track_timescale 600 -c:v libx264 -f mp4 "$tmpdir/sec.mp4"

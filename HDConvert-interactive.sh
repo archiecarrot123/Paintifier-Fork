@@ -14,7 +14,7 @@ then
     exit
 fi
 
-if [ $1 == '-h' -o $1 == '--help' ]
+if [ "$1" == '-h' -o "$1" == '--help' ]
   then
     echo usage: HDConvert-interactive.sh
     echo options: -h \| --help
@@ -39,6 +39,12 @@ read name
 if [ -n "$name" ]
   then
     name=VideoWorld
+fi
+
+if [ ! -a "$filename" ]
+  then
+    echo "Your specified file doesn't exist"
+    exit
 fi
 
 ffmpeg -loglevel error -stats -i "$filename" -vf "trim=0:4,geq=0:128:128" -af "atrim=0:4,volume=0" -video_track_timescale 600 -c:v libx264 -f mp4 "$tmpdir/sec.mp4"
