@@ -54,7 +54,7 @@ if [ "$1" == '-s' -o "$1" == '--skip' ]
     fi
 fi
 
-if [ ! -a "$filename" ]
+if [ ! -e "$filename" ]
   then
     echo "Your specified file doesn't exist"
     exit
@@ -77,9 +77,7 @@ then
   ffmpeg -loglevel error -stats -i "$tmpdir/merged.mp4" -s 1024x512 -c:a copy "$tmpdir/input-modded.mp4"
 else 
   #ffmpeg -loglevel error -stats -i merged.mp4 -vf "pad=width=1024:height=512:x=512-(iw/2):y=256-(ih/2):color=black" "$tmpdir/input-moddeda.mp4"
-  ffmpeg -loglevel error -stats -i "$tmpdir/merged.mp4" -vf "scale=iw*min(1024/iw\,512/ih):ih*min(1024/iw\,512/ih),pad=1024:512:(1024-iw)/2:(512-ih)/2" "$tmpdir/input-moddeda.mp4"
-  ffmpeg -loglevel error -stats -i "$tmpdir/input-moddeda.mp4" -s 1024x512 -c:a copy "$tmpdir/input-modded.mp4"
-  rm "$tmpdir/input-moddeda.mp4"
+  ffmpeg -loglevel error -stats -i "$tmpdir/merged.mp4" -vf "scale=iw*min(1024/iw\,512/ih):ih*min(1024/iw\,512/ih),pad=1024:512:(1024-iw)/2:(512-ih)/2" "$tmpdir/input-modded.mp4"
 fi
 
 rm "$tmpdir/merged.mp4"
