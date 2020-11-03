@@ -60,13 +60,7 @@ ffmpeg -loglevel error -stats -i "$tmpdir/merged.mp4" -vf "scale=iw*min(1024/iw\
 
 rm "$tmpdir/merged.mp4"
 
-mkdir out
-mkdir "out/$name"
-mkdir "out/$name/resources"
-mkdir "out/$name/resources/assets"
-mkdir "out/$name/resources/assets/minecraft"
-mkdir "out/$name/resources/assets/minecraft/sounds"
-mkdir "out/$name/resources/assets/minecraft/sounds/audio"
+mkdir -p "out/$name/resources/assets/minecraft/sounds/audio"
 
 ffmpeg -loglevel error -stats -i "$filename" -q:a 0 -map a "out/$name/resources/assets/minecraft/sounds/audio/audio.ogg"
 
