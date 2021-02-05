@@ -1,6 +1,6 @@
 #!/bin/bash
 tmpdir="/tmp/MCHDConvert"
-mkdir "$tmpdir"
+mkdir -p "$tmpdir"
 scriptdir=$(dirname "$0")
 
 if ! zip -v &> /dev/null
@@ -19,7 +19,16 @@ if [ "$1" == '-h' ] || [ "$1" == '--help' ]
   then
     echo usage: HDConvert-interactive.sh [ input filename ] [ output foldername ]
     echo options:   -h \| --help
+    echo            -l \| --no-break    \# don\'t add a three second break
     exit
+fi
+
+if [ "$1" == '-l' ] || [ "$1" == '--no-break' ]
+  then
+    break=false
+    shift
+  else
+    break=true
 fi
 
 if [ -n "$1" ]
@@ -42,17 +51,20 @@ if [ ! -e "$filename" ]
     exit
 fi
 
-ffmpeg -loglevel error -stats -i "$filename" -vf "trim=0:4,geq=0:128:128" -af "atrim=0:4,volume=0" -video_track_timescale 600 -c:v libx264 -f mp4 "$tmpdir/sec.mp4"
-ffmpeg -loglevel error -stats -i "$filename" -c:v libx264 -video_track_timescale 600 -f mp4 "$tmpdir/full600.mp4"
-# Creates a text file required for concatenation.
-printf "file '%s'\n" "sec.mp4" "full600.mp4" > "$tmpdir/list.txt"
-ffmpeg -loglevel error -stats -f concat -i "$tmpdir/list.txt" -c copy -f mp4 "$tmpdir/merged.mp4"
+if [ $break == true ]
+  then
+    ffmpeg -loglevel error -stats -i "$filename" -vf "trim=0:4,geq=0:128:128" -af "atrim=0:4,volume=0" -video_track_timescale 600 -c:v libx264 -f mp4 "$tmpdir/sec.mp4"
+    ffmpeg -loglevel error -stats -i "$filename" -c:v libx264 -video_track_timescale 600 -f mp4 "$tmpdir/full600.mp4"
+    # Creates a text file required for concatenation.
+    printf "file '%s'\n" "sec.mp4" "full600.mp4" > "$tmpdir/list.txt"
+    ffmpeg -loglevel error -stats -f concat -i "$tmpdir/list.txt" -c copy -f mp4 "$tmpdir/merged.mp4"
+    rm "$tmpdir/list.txt"
+    rm "$tmpdir/full600.mp4"
+    rm "$tmpdir/sec.mp4"
+  else
+    ffmpeg -loglevel error -stats -i "$filename" -c:v libx264 -video_track_timescale 600 -f mp4 "$tmpdir/merged.mp4"
+fi
 
-rm "$tmpdir/list.txt"
-
-rm "$tmpdir/full600.mp4"
-
-rm "$tmpdir/sec.mp4"
 
 
 ffmpeg -loglevel error -stats -i "$tmpdir/merged.mp4" -vf "scale=iw*min(1024/iw\,512/ih):ih*min(1024/iw\,512/ih),pad=1024:512:(1024-iw)/2:(512-ih)/2" "$tmpdir/input-modded.mp4"
