@@ -14,22 +14,52 @@ then
     exit
 fi
 
+break=true
+short=false
 
-if [ "$1" == '-h' ] || [ "$1" == '--help' ]
-  then
-    echo usage: HDConvert-interactive.sh [ input filename ] [ output foldername ]
-    echo options:   -h \| --help
-    echo            -l \| --no-break    \# don\'t add a three second break
-    exit
-fi
+for arg in "$@"
+  do
+    for _ in once
+      do
+        if [[ "$arg" = -* ]]
+          then
+            if [ "$arg" == '--no-break' ]
+              then
+                break=false
+                shift
+                break
+            fi
 
-if [ "$1" == '-l' ] || [ "$1" == '--no-break' ]
-  then
-    break=false
-    shift
-  else
-    break=true
-fi
+            if [ "$arg" == '--short' ]
+              then
+                short=true
+                shift
+                break
+            fi
+
+            if [[ "$arg" == *h* ]] || [ "$arg" == '--help' ]
+              then
+                echo usage: HDConvert-interactive.sh [options] [input filename] [output foldername]
+                echo "options:   -h \| --help        # display this help"
+                echo "           -l \| --no-break    # don't add a three second break"
+                echo "           -s \| --short       # draw thumbnail from 1st frame,"
+                echo "                               # required for <1 second videos' thumnails."
+                exit
+            fi
+
+            if [[ "$arg" == *l* ]]
+              then
+                break=false
+            fi
+
+            if [[ "$arg" == *s* ]]
+              then
+                short=true
+            fi
+            shift
+        fi
+    done
+done
 
 if [ -n "$1" ]
   then
@@ -47,7 +77,7 @@ fi
 
 if [ ! -e "$filename" ]
   then
-    echo "Your specified file doesn't exist"
+    echo "Your specified file ($filename) doesn't exist"
     exit
 fi
 
@@ -78,9 +108,15 @@ ffmpeg -loglevel error -stats -i "$filename" -q:a 0 -map a "out/$name/resources/
 
 rate=$(ffprobe -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate "$filename")
 O="20/($rate)"
-echo "$O"
 
 ffmpeg -loglevel error -stats -i "$tmpdir/input-modded.mp4" -filter:v "setpts=$O*PTS" "$tmpdir/input.mp4"
+
+if [ $short == false ]
+  then
+    ffmpeg -y -loglevel error -stats -i "$filename" -vf "scale=iw*min(64/iw\,64/ih):ih*min(64/iw\,64/ih),pad=64:64:(64-iw)/2:(64-ih)/2,select=eq(n\,ceil($rate))" -vframes 1 "out/$name/icon.png"
+  else
+    ffmpeg -y -loglevel error -stats -i "$filename" -vf "scale=iw*min(64/iw\,64/ih):ih*min(64/iw\,64/ih),pad=64:64:(64-iw)/2:(64-ih)/2,select=eq(n\,0)" -vframes 1 "out/$name/icon.png"
+fi
 
 rm "$tmpdir/input-modded.mp4"
 
@@ -102,7 +138,6 @@ ffmpeg -loglevel error -stats -i "$tmpdir/input.mp4" -filter_complex "[0:v]crop=
 (( "H = $W*2" ))
 
 frames=$(ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of default=nokey=1:noprint_wrappers=1 "$tmpdir/input.mp4")
-echo "$frames"
 
 for n in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
 do
